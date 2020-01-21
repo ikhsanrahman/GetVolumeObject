@@ -4,7 +4,7 @@ from sort_countour import sort_contours, draw_contour
 
 
 
-cap = cv2.VideoCapture(2)
+cap = cv2.VideoCapture(0)
 
 # setup
 bluelow = 150
@@ -54,15 +54,15 @@ while True:
 			approx = cv2.approxPolyDP(c, 0.1 * peri, True)
 			x , y , w, h = cv2.boundingRect(approx)
 			cv2.drawContours(output_img, [c], -1, (0, 255, 255), 1) #Draw all the contours with a red background
-			cv2.rectangle(output_img, (x,y), (x+w, y+h), (0,255,0),3)
-			if i == 0:
-				cv2.putText(output_img, "ymaxpix:" + str(h), (x + 10, y+10), cv2.FONT_HERSHEY_COMPLEX, .5, (0,255,0), 2)
-			if i == 4:
-				cv2.putText(output_img, "yminpix:" + str(y), (x + 15, y + 40), cv2.FONT_HERSHEY_COMPLEX, .5, (0,255,0), 2)
-			if i == 1:
-				cv2.putText(output_img, "xmaxpix:" + str(w), (x + 30, y + 30), cv2.FONT_HERSHEY_COMPLEX, .5, (0,255,0), 2)
-			if i == 2:
-				cv2.putText(output_img, "xminpix:" + str(x), (x + 10, y + 30), cv2.FONT_HERSHEY_COMPLEX, .5, (0,255,0), 2)
+			# cv2.rectangle(output_img, (x,y), (x+w, y+h), (0,255,0),3)
+			# if i == 0:
+			# 	cv2.putText(output_img, "ymaxpix:" + str(h), (x + 10, y+10), cv2.FONT_HERSHEY_COMPLEX, .5, (0,255,0), 2)
+			# if i == 4:
+			# 	cv2.putText(output_img, "yminpix:" + str(y), (x + 15, y + 40), cv2.FONT_HERSHEY_COMPLEX, .5, (0,255,0), 2)
+			# if i == 1:
+			# 	cv2.putText(output_img, "xmaxpix:" + str(w), (x + 30, y + 30), cv2.FONT_HERSHEY_COMPLEX, .5, (0,255,0), 2)
+			# if i == 2:
+			# 	cv2.putText(output_img, "xminpix:" + str(x), (x + 10, y + 30), cv2.FONT_HERSHEY_COMPLEX, .5, (0,255,0), 2)
 			# cv2.putText(output_img, "{}minpix:".format(i) + str(np.min(c)), (x + 10, y + 20), cv2.FONT_HERSHEY_COMPLEX, .5, (0,255,0), 2)
 			# cv2.putText(output_img, "maxpix:" + str(np.max(c)), (x + 10, y + 35), cv2.FONT_HERSHEY_COMPLEX, .5, (0,255,0), 2)
 

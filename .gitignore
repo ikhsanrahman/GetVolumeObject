@@ -2,4 +2,9 @@ penelitian-box*
 object*.jpeg
 sawit*.jpeg
 WhatsApp*
+frame*
+main.py
+data*
+
+__pycache__
 
