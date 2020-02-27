@@ -4,7 +4,7 @@ from sort_countour import sort_contours, draw_contour
 
 
 
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(2)
 
 # setup
 bluelow = 150
@@ -17,6 +17,7 @@ result = None
 a = 0
 while True:
 	ret, frame = cap.read()
+	print(frame)
 	key = cv2.waitKey(1)
 	lower = np.array([bluelow,greenlow,redlow]) #lower limit of BGR values of the laser line
 	upper= np.array([blueup,greenup,redup]) #upper limit of BGR values of the laser line
@@ -67,6 +68,8 @@ while True:
 			# cv2.putText(output_img, "maxpix:" + str(np.max(c)), (x + 10, y + 35), cv2.FONT_HERSHEY_COMPLEX, .5, (0,255,0), 2)
 
 
+	cv2.imshow('ag', output_img)
+	output_img = cv2.resize(output_img, (880,680))
 	cv2.imshow('image',output_img)
 
 	cv2.imshow('frame', frame)

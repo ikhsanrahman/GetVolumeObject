@@ -8,9 +8,10 @@ from sort_countour import sort_contours, draw_contour
 import serial
 
 ser = serial.Serial('/dev/ttyACM0', 9600)
+serReadMass = serial.Serial('/dev/ttyACM1', 9600)
  
 class App:
-    def __init__(self, window, window_title, video_source=0):
+    def __init__(self, window, window_title, video_source=2):
         self.bluelow = 150
         self.greenlow = 150
         self.redlow = 240
@@ -31,7 +32,7 @@ class App:
         self.vid = MyVideoCapture(self.video_source)
 
         # Create a canvas that can fit the above video source size
-        self.canvas = tkinter.Canvas(window, width=self.vid.width, height=self.vid.height)
+        self.canvas = tkinter.Canvas(window, width=840, height=640)
         self.canvas.pack()
         
         self.labelVol = tkinter.Label(window, text='Volume')
@@ -64,8 +65,8 @@ class App:
         self.btn_startMotor.pack(anchor=tkinter.CENTER, expand=True)
 
         # stop motor
-        self.btn_stopMotor=tkinter.Button(window, text="stop", width=50, command=self.setStopMotor)
-        self.btn_stopMotor.pack(anchor=tkinter.CENTER, expand=True)
+        # self.btn_stopMotor=tkinter.Button(window, text="stop", width=50, command=self.setStopMotor)
+        # self.btn_stopMotor.pack(anchor=tkinter.CENTER, expand=True)
 
         # After it is called once, the update method will be automatically called every delay milliseconds
         self.delay = 15
@@ -85,62 +86,66 @@ class App:
         if ret:
             cv2.imwrite("data/frame-" + time.strftime("%d-%m-%Y-%H-%M-%S") + ".jpg", capture_img)
             
-            self.mask = cv2.inRange(capture_img, self.lower, self.upper)
-            capture_img[np.where(self.mask==0)] = 0 #where the mask value is 0, make those coordinates black
-            capture_img[np.where(self.mask>100)] =255 #The target points, or the points which belong to the laser line are displayed in white
-            gray = cv2.cvtColor(capture_img, cv2.COLOR_BGR2GRAY)
-            gray = cv2.GaussianBlur(gray, (5, 5), 0)
-            kernel = np.ones((5,5), np.uint8) 
-            thresh = cv2.threshold(gray, 45, 255, cv2.THRESH_BINARY)[1]
-            thresh = cv2.erode(thresh, kernel, iterations=1)
-            thresh = cv2.dilate(thresh, kernel, iterations=1)
+            # self.mask = cv2.inRange(capture_img, self.lower, self.upper)
+            # capture_img[np.where(self.mask==0)] = 0 #where the mask value is 0, make those coordinates black
+            # capture_img[np.where(self.mask>100)] =255 #The target points, or the points which belong to the laser line are displayed in white
+            # gray = cv2.cvtColor(capture_img, cv2.COLOR_BGR2GRAY)
+            # gray = cv2.GaussianBlur(gray, (5, 5), 0)
+            # kernel = np.ones((5,5), np.uint8) 
+            # thresh = cv2.threshold(gray, 45, 255, cv2.THRESH_BINARY)[1]
+            # thresh = cv2.erode(thresh, kernel, iterations=1)
+            # thresh = cv2.dilate(thresh, kernel, iterations=1)
 
-            #finding the contours with RED colour
-            cnts, hierarchy  = cv2.findContours(thresh.copy(), cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
+            # #finding the contours with RED colour
+            # cnts, hierarchy  = cv2.findContours(thresh.copy(), cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
             
-            cnts, boundingBoxes = sort_contours(cnts, method='top-to-bottom')
-            for i, c in enumerate(cnts):
-                result = draw_contour(capture_img, c, i)
-                c=cnts[i]
-                peri = cv2.arcLength(c, True)
-                approx = cv2.approxPolyDP(c, 0.1 * peri, True)
-                x , y , w, h = cv2.boundingRect(approx)
-                cv2.drawContours(capture_img, [c], -1, (0, 255, 255), 1) #Draw all the contours with a red background
-                cv2.rectangle(capture_img, (x,y), (x+w, y+h), (0,255,0),3)
-                if i == 0:
-                    ymax = h
-                    cv2.putText(capture_img, "ymaxpix:" + str(h), (x + 10, y+10), cv2.FONT_HERSHEY_COMPLEX, .5, (0,255,0), 2)
+            # cnts, boundingBoxes = sort_contours(cnts, method='top-to-bottom')
+            # for i, c in enumerate(cnts):
+            #     result = draw_contour(capture_img, c, i)
+            #     c=cnts[i]
+            #     peri = cv2.arcLength(c, True)
+            #     approx = cv2.approxPolyDP(c, 0.1 * peri, True)
+            #     x , y , w, h = cv2.boundingRect(approx)
+            #     cv2.drawContours(capture_img, [c], -1, (0, 255, 255), 1) #Draw all the contours with a red background
+            #     cv2.rectangle(capture_img, (x,y), (x+w, y+h), (0,255,0),3)
+            #     if i == 0:
+            #         ymax = h
+            #         cv2.putText(capture_img, "ymaxpix:" + str(h), (x + 10, y+10), cv2.FONT_HERSHEY_COMPLEX, .5, (0,255,0), 2)
                 
-                if i == 1:
-                    xmax = w
-                    cv2.putText(capture_img, "xmaxpix:" + str(w), (x + 30, y + 30), cv2.FONT_HERSHEY_COMPLEX, .5, (0,255,0), 2)
+            #     if i == 1:
+            #         xmax = w
+            #         cv2.putText(capture_img, "xmaxpix:" + str(w), (x + 30, y + 30), cv2.FONT_HERSHEY_COMPLEX, .5, (0,255,0), 2)
                 
-                if i == 3:
-                    center = w/2
-                    cv2.putText(capture_img, "xmaxpix:" + str(w/2), (x + 30, y + 30), cv2.FONT_HERSHEY_COMPLEX, .5, (0,255,0), 2)
+            #     if i == 3:
+            #         center = w/2
+            #         cv2.putText(capture_img, "xmaxpix:" + str(w/2), (x + 30, y + 30), cv2.FONT_HERSHEY_COMPLEX, .5, (0,255,0), 2)
 
-                if i == 2:
-                    xmin = x
-                    cv2.putText(capture_img, "xminpix:" + str(x), (x + 10, y + 30), cv2.FONT_HERSHEY_COMPLEX, .5, (0,255,0), 2)
-                if i == 4:
-                    ymin = y
-                    cv2.putText(capture_img, "yminpix:" + str(y), (x + 15, y + 40), cv2.FONT_HERSHEY_COMPLEX, .5, (0,255,0), 2)
+            #     if i == 2:
+            #         xmin = x
+            #         cv2.putText(capture_img, "xminpix:" + str(x), (x + 10, y + 30), cv2.FONT_HERSHEY_COMPLEX, .5, (0,255,0), 2)
+            #     if i == 4:
+            #         ymin = y
+            #         cv2.putText(capture_img, "yminpix:" + str(y), (x + 15, y + 40), cv2.FONT_HERSHEY_COMPLEX, .5, (0,255,0), 2)
             
-            width = ymax-ymin
-            length = xmax - xmin 
-            height = (center-xmax) * 0.5
+            # width = ymax-ymin
+            # length = xmax - xmin 
+            # height = (center-xmax) * 0.5
 
-            self.volume = width * length * height
-            # print(self.volume)
+            # self.volume = width * length * height
+
             cv2.imwrite("dataContour/frame-" + time.strftime("%d-%m-%Y-%H-%M-%S") + ".jpg", capture_img)
 
     def setVolume(self):
+        volume = None
         self.vol.delete(0, 'end')
-        self.vol.insert(tkinter.END, self.volume)
-        self.vol.pack()
-        # self.canvas.create_window(200, 230, window=self.vol)
+        if self.vid.start == True:
+            volume = self.vid.readVolume()
+            self.vol.insert(tkinter.END, str(volume))
+            self.vol.pack()
 
-        self.setMoveBigMotor()
+        if volume:
+            self.setMoveBigMotor()
+        # self.canvas.create_window(200, 230, window=self.vol)
 
     def setStartMotor(self):
         self.vid.startMotor()
@@ -151,9 +156,8 @@ class App:
     def setMass(self):
         self.mas.delete(0, 'end')
         self.mass = self.vid.readMass()
-        print(self.mass)
         # self.mass = self.mass.decode("utf-8").rstrip()
-        self.mas.insert(tkinter.END, self.mass)
+        self.mas.insert(tkinter.END, str(self.mass))
         self.mas.pack()
         # self.canvas.create_window(240, 240, window=self.mas)
         # return self.mass
@@ -164,6 +168,7 @@ class App:
     def displayFrame(self):
         # Get a frame from the video source
         ret, output_img, capture_img = self.vid.get_frame()
+        output_img = cv2.resize(output_img, (840, 640))
         if ret:
             self.photo = PIL.ImageTk.PhotoImage(image = PIL.Image.fromarray(output_img))
             self.canvas.create_image(0, 0, image = self.photo, anchor = tkinter.NW)
@@ -172,13 +177,16 @@ class App:
 
 
 class MyVideoCapture:
-    def __init__(self, video_source=0):
+    def __init__(self, video_source=1):
         self.bluelow = 150
         self.greenlow = 150
         self.redlow = 240
         self.blueup = 255
         self.greenup = 255
         self.redup = 255
+
+        self.start = False
+        self.idMotorUp = 0
 
         self.mass = None
         self.lower = np.array([self.bluelow, self.greenlow, self.redlow])
@@ -196,7 +204,12 @@ class MyVideoCapture:
     def get_frame(self):
         if self.vid.isOpened():
             ret, frame = self.vid.read()
-            if ret:
+            ymax = 0
+            ymin = 0
+            center = 0
+            xmax = 0
+            xmin = 0
+            while ret:
                 self.mask = cv2.inRange(frame, self.lower, self.upper)
                 output_img = frame.copy()
                 capture_img = frame.copy()
@@ -250,7 +263,6 @@ class MyVideoCapture:
                         cv2.putText(output_img, "yminpix:" + str(h), (x + 10, y+10), cv2.FONT_HERSHEY_COMPLEX, .5, (0,255,0), 2)
                     if i == 4:
                         ymax = y
-                        width = ymax - ymin
                         cv2.putText(output_img, "ymaxpix:" + str(y), (x + 15, y + 40), cv2.FONT_HERSHEY_COMPLEX, .5, (0,255,0), 2)
                     if i == 3:
                         center = x+w/2
@@ -263,6 +275,12 @@ class MyVideoCapture:
                         length = xmax - xmin  
                         cv2.putText(output_img, "xmaxpix:" + str(x), (x + 10, y + 30), cv2.FONT_HERSHEY_COMPLEX, .5, (0,255,0), 2)
 
+                width = ymax-ymin
+                length = xmax - xmin 
+                height = (center-xmax) * 0.5 # distance multiple tan teta
+
+                self.volume = width * length * height
+
                 return (ret, output_img, capture_img)
 
             else:
@@ -272,25 +290,37 @@ class MyVideoCapture:
 
     def startMotor(self):
         #send signal to move camera
-        ser = ser.write(b'1')
+        self.start = True
+        ser.write(b'0')
+        
+    def readVolume(self):
+        if self.start == True:
+            return self.volume
+            self.start = False
+        return None
 
     def readMass(self):
-        time.sleep(0.3)
-        while ser.inWaiting() > 0:
-            self.mass = ser.readline()
-        # BytesAvailable=ser.inWaiting()
-        # SerialReadData=ser.readline(BytesAvailable)
-        # self.mass = SerialReadData.decode("utf-8")
-        # print(self.mass.decode("utf-8").rstrip())
-        return self.mass
+        # if self.start == True:
+            time.sleep(0.3)
+            while serReadMass.inWaiting() > 0:
+                self.mass = serReadMass.readline()
+            # BytesAvailable=ser.inWaiting()
+            # SerialReadData=ser.readline(BytesAvailable)
+            # self.mass = SerialReadData.decode("utf-8")
+            # print(self.mass.decode("utf-8").rstrip())
+            return self.mass
+        # return None
 
     def stopMotor(self):
         #send signal to move camera
-        ser = ser.write(b'0')
+        self.start = False
+        result = ser.write(b'1')
 
     def moveBigMotor(self):
+        #majukan big stepper motor
         ser.write(b'2')
-        time.sleep(1)
+        time.sleep(3)
+        #mundurkan big stepper motor
         ser.write(b'3')
 
     # Release the video source when the object is destroyed
