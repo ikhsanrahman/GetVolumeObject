@@ -17,3 +17,8 @@ this is a system that can detect a symmetry object using Laser and using fractur
 ## control system involved
 * arduino connect to 2 big stepper motor. one to run camera and raspberry pi and another to run load
 
+# display
+## from side
+![](readme/image1.jpeg)
+## from top
+![](readme/image2.jpeg)
